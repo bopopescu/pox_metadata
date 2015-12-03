@@ -3819,11 +3819,11 @@ class ofp_packet_out (ofp_header): #change to avoid collision by milktank
 #         self.actionsLength = len(self.actions)   #added by lsr
   
     @property
-    def bufferId (self):
+    def buffer_id (self):
         if self._buffer_id == NO_BUFFER: return None
         return self._buffer_id
-    @bufferId.setter
-    def bufferId (self, val):
+    @buffer_id.setter
+    def buffer_id (self, val):
         if val is None: val = NO_BUFFER
         self._buffer_id = val
 
@@ -3832,6 +3832,7 @@ class ofp_packet_out (ofp_header): #change to avoid collision by milktank
         return self._data
     @data.setter
     def data (self, data):
+
         if data is None:
             self._data = b''
         elif isinstance(data, packet_base):
@@ -3839,21 +3840,21 @@ class ofp_packet_out (ofp_header): #change to avoid collision by milktank
         elif isinstance(data, ofp_packet_in):
             # Enable you to easily resend a packet
             self._data = b''
-            self.bufferId = data.bufferId
-            if self.bufferId is None:
+            self.buffer_id = data.buffer_id
+            if self.buffer_id is None:
             #TODO: It'd be nice to log and then ignore if data is incomplete
             #      Unfortunately, we currently have no logging in here, so we
             #      assert instead which is a either too drastic or too quiet.
             #assert data.is_complete  change by milktank
-                self._data = data.packetData 
-            self.in_port = data.port_id 
+                self._data = data.data
+            self.in_port = data.slot_port_id 
         elif isinstance(data, bytes):
             self._data = data
         assert assert_type("data", self._data, (bytes,))
 
     def _validate (self):
-        if self.bufferId is not None and self.data != b'':
-            return "can not have both bufferId and data set"
+        if self.buffer_id is not None and self.data != b'':
+            return "can not have both buffer_id and data set"
         return None
       
     def pack (self):
@@ -3871,7 +3872,9 @@ class ofp_packet_out (ofp_header): #change to avoid collision by milktank
         packed += struct.pack("!L" ,len(self.data))
         #print ("\n")
         #print (packed.encode("hex"))
-    
+#         print "data:", self.data
+#         print "_data:", self._data
+#     
         if len(self.actions)==0:
             packed += _PAD * OFP_MAX_ACTION_NUMBER_PER_INSTRUCTION * ofp_action_base._MAX_LENGTH
         else:
@@ -3888,7 +3891,7 @@ class ofp_packet_out (ofp_header): #change to avoid collision by milktank
             if (self.data !=b""):
                 if (len(self.data) < OFP_PACKET_IN_MAX_LENGTH):
                     #datapacked =b""+ struct.pack("!10s" ,self.data)
-                    #print ("datapacked:",datapacked.encode("hex"))      
+                    #print ("datapacked:",datapacked.encode("hex"))    
                     packed += self.data
                     #print ("data:",self.data.encode("hex"))
                     #print (len(self.data))
@@ -3942,7 +3945,7 @@ class ofp_packet_out (ofp_header): #change to avoid collision by milktank
     def __eq__ (self, other):
         if type(self) != type(other): return False
         if not ofp_header.__eq__(self, other): return False
-        if self.bufferId != other.bufferId: return False
+        if self.buffer_id != other.buffer_id: return False
         if self.in_port != other.in_port: return False
         if self.actions != other.actions: return False
         return True
@@ -3951,7 +3954,7 @@ class ofp_packet_out (ofp_header): #change to avoid collision by milktank
         outstr = ''
         outstr += prefix + 'header: \n'
         outstr += ofp_header.show(self, prefix + '  ')
-        outstr += prefix + 'bufferId: ' + str(self.bufferId) + '\n'
+        outstr += prefix + 'buffer_id: ' + str(self.buffer_id) + '\n'
         outstr += prefix + 'in_port: ' + str(self.in_port) + '\n'
         outstr += prefix + 'actions_len: ' + str(len(self.actions)) + '\n'
         outstr += prefix + 'actions: \n'
