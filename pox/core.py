@@ -191,8 +191,8 @@ class POXCore (EventMixin):
         import threading
         self.quit_condition = threading.Condition()
     
-        self.version = (0,2,0)
-        self.version_name = "carp"
+        self.version = (1,1,0)
+        self.version_name = "beta"
         print(self.banner)
     
         self.scheduler = recoco.Scheduler(daemon=True)
@@ -201,7 +201,7 @@ class POXCore (EventMixin):
 
     @property
     def banner (self):
-        return "{0} / Copyright 2011-2013 James McCauley, et al.".format(
+        return "{0} / Copyright 2014-2016 USTC, et al.".format(
          self.version_string)
 
     @property
