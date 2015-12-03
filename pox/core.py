@@ -206,7 +206,7 @@ class POXCore (EventMixin):
 
     @property
     def version_string (self):
-        return "POX %s (%s)" % ('.'.join(map(str,self.version)),self.version_name)
+        return "PCTRL %s (%s)" % ('.'.join(map(str,self.version)),self.version_name)
 
     def callDelayed (_self, _seconds, _func, *args, **kw):
         """
