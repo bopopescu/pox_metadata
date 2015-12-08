@@ -1030,7 +1030,7 @@ _set_handlers()
 deferredSender = None
 
 def launch (port = 6633, address = "0.0.0.0"):
-    if core.hasComponent('of_01'):
+    if core.hasComponent('pof_01'):
         return None
 
     global deferredSender
