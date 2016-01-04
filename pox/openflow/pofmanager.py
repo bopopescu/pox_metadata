@@ -487,7 +487,12 @@ class PofManager(EventMixin):
     
     # Meter functions
     def add_meter_entry(self, switch_id, rate):  # return meter_id
-        pass
+        meter_id = self.database.add_meter_entry(switch_id, rate)
+        meter_mod = self.get_meter(switch_id, meter_id)
+        if meter_mod is not None:
+            meter_mod.command = of.OFPMC_ADD
+            self.write_of(switch_id, meter_mod)
+        return meter_id
     
     def free_meter(self, switch_id, meter_id):  # return ofp_meter_mod
         pass
@@ -496,7 +501,7 @@ class PofManager(EventMixin):
         pass
     
     def get_meter(self, switch_id, meter_id):  # return ofp_meter_mod
-        pass
+        return self.database.get_meter(switch_id, meter_id)
         
     def get_all_meters(self, switch_id):   #return a list of ofp_meter_mod
         pass

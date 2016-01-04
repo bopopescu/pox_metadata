@@ -4506,10 +4506,11 @@ class ofp_set_async(ofp_header):  # NOT FINISHED YET!
     
 @openflow_c_message("OFPT_METER_MOD", 30)
 class ofp_meter_mod(ofp_header):
-    _MIN_LENGTH = 16
+    _MIN_LENGTH = 24
     def __init__(self, **kw):
         ofp_header.__init__(self)
         self.command = 0  # 1 byte, ofp_meter_mod_command
+        self.slot_id = 0
         self.rate = 0  # 2 bytes
         self.meter_id = 0  # 4 bytes
 
@@ -4522,7 +4523,8 @@ class ofp_meter_mod(ofp_header):
         packed += ofp_header.pack(self)
         packed += struct.pack("!B", self.command)
         packed += _PAD
-        packed += struct.pack("!HL", self.rate, self.meter_id)
+        packed += struct.pack("!HLL", self.slot_id, self.meter_id, self.rate)
+        packed += _PAD4
         return packed
         
     
@@ -4530,14 +4532,14 @@ class ofp_meter_mod(ofp_header):
         offset, length = self._unpack_header(raw, offset)
         offset, self.command = _unpack("!B", self.command)
         offset = _skip(raw, offset, 1)
-        offset, (self.rate, self.meter_id) = _unpack("!HL", self.rate, self.meter_id)
-
+        offset, (self.rate, self.meter_id) = _unpack("!HLL", self.slot_id, self.meter_id, self.rate)
+        offset = _skip(raw, offset, 4)
         assert length == len(self)
         return offset, length
     
     @staticmethod
     def __len__ ():
-        return 16
+        return ofp_meter_mod._MIN_LENGTH
 
     def __eq__(self, other):
         if type(self) != type(other): return False
@@ -4545,14 +4547,16 @@ class ofp_meter_mod(ofp_header):
         if self.command != other.command: return False
         if self.rate != other.rate: return False
         if self.meter_id != other.meter_id: return False
+        if self.slot_id != other.slot_id: return False
         return True
     
     def show(self, prefix=''):
         outstr = ''
         outstr += ofp_header.show(self, prefix + '  ')
         outstr += prefix + 'command:   ' + str(self.command) + '\n' 
-        outstr += prefix + 'rate:      ' + str(self.rate) + '\n' 
+        outstr += prefix + 'slot_id:  ' + str(self.slot_id) + '\n' 
         outstr += prefix + 'meter_id:  ' + str(self.meter_id) + '\n' 
+        outstr += prefix + 'rate:      ' + str(self.rate) + '\n' 
         return outstr
         
 @openflow_c_message("OFPT_COUNTER_MOD", 31)

@@ -907,13 +907,28 @@ class PMdatabase(EventMixin):
     
     # Meter functions
     def add_meter_entry(self, switch_id, rate):  # return meter_id (int)
-        pass
-    
+        try:
+            switch_DB = self.switch_DB_map.get(switch_id)
+            if switch_DB is None or not isinstance(switch_DB, PMSwitchDB):
+                return False
+            meter_id = switch_DB.alloc_meter_id()
+            new_meter = of.ofp_meter_mod()
+            new_meter.meter_id = meter_id
+            new_meter.rate = rate
+            switch_DB.put_meter(meter_id, new_meter)
+            return meter_id
+        except:
+            print 'something wrong in pmdatabase.add_meter_entry'
+            return METER_INVALID
+
     def free_meter(self, switch_id, meter_id):  # return ofp_meter_mod
         pass
     
     def get_meter(self, switch_id, meter_id):  # return ofp_meter_mod
-        pass
+        switch_DB = self.switch_DB_map.get(switch_id)
+        if switch_DB is None or not isinstance(switch_DB, PMSwitchDB):
+            return False
+        return switch_DB.get_meter(meter_id)
     
     def modify_meter(self, switch_id, meter_id, rate):  # return boolean
         pass
