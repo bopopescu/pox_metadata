@@ -13,6 +13,7 @@ from pox.lib.util import dpidToStr
 #from gui_to_pofmanager import *
 import string
 from pox.lib.revent.revent import EventMixin
+
 ###################################################################
 global links
 global protocol#just to sava a protocol
@@ -57,6 +58,8 @@ class POFdesk(EventMixin):
         links=set()
         #core.listen_to_dependencies(self)
         core.openflow.addListeners(self)
+        core.listen_to_dependencies(self,
+            listen_args={'openflow':{'priority':0xffffffff}})
         httpd = core.WebServer
         local_path=path_prase('template')
         www_path="/Spectrum/"
@@ -118,6 +121,7 @@ class POFdesk(EventMixin):
            
     def _handle_openflow_discovery_LinkEvent (self, event):
         #find topolink!
+        print "find link"
         global links
         s1 = event.link.dpid1
         s2 = event.link.dpid2
@@ -128,7 +132,7 @@ class POFdesk(EventMixin):
             links.add((s1,s2))
         elif event.removed and (s1,s2) in links:
             links.remove((s1,s2))
-
+            
 def path_prase(local_path):
 #find the real path
     import inspect
