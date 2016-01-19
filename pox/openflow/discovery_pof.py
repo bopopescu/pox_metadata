@@ -24,14 +24,14 @@ Discovery module, or a Discovery superclass.
 """
 
 """
-modified by cc
+modified by hdy
 """
 
 from pox.lib.revent import *
 from pox.lib.recoco import Timer
 from pox.lib.util import dpid_to_str, str_to_bool
 from pox.core import core
-import pox.openflow.libpof_01 as of
+import pox.openflow.libpof_02 as of
 import pox.lib.packet as pkt
 
 import struct
@@ -42,6 +42,24 @@ from random import shuffle, random
 
 log = core.getLogger()
 
+def add_protocol():
+    field_list = [("DMAC",48), ("SMAC",48), ("Eth_Type",16), ("V_IHL_TOS",16), ("Total_Len",16),
+                  ("ID_Flag_Offset",32), ("TTL",8), ("Protocol",8), ("Checksum",16), ("SIP",32), ("DIP",32),("S_Port",16),("D_Port",16 )]
+    _add_protocol('ETH_IPv4', field_list)
+def _add_protocol(protocol_name, field_list):
+    """
+    Define a new protocol, and save it to PMDatabase.
+    
+    protocol_name: string
+    field_list:[("field_name", length)]
+    """
+    match_field_list = []
+    total_offset = 0
+    for field in field_list:
+        field_id = core.PofManager.new_field(field[0], total_offset, field[1])   #field[0]:field_name, field[1]:length
+        total_offset += field[1]
+        match_field_list.append(core.PofManager.get_field(field_id))
+    core.PofManager.add_protocol("protocol_name", match_field_list)
 
 class LLDPSender (object):
     """
@@ -87,18 +105,24 @@ class LLDPSender (object):
         """
         Track changes to switch ports
         """
-        if event.added:
-            self.add_port(event.dpid, event.port, event.ofp.desc.hw_addr)
-        elif event.deleted:
-            self.del_port(event.dpid, event.port)
+        
+        port_id = event.ofp.desc.port_id
+        port_name = event.ofp.desc.name
+        if  port_name.find("0")==-1 and port_name.find("v")==-1 and port_name.find("r")==-1 and port_name.find("s")==-1 and port_name.find("O")==-1:
+            time.sleep(0.5)
+            core.PofManager.set_port_of_enable(event.dpid, port_id)           
+            if event.added:
+                Timer(3,self.add_port, args =[event.dpid, event.port, event.ofp.desc.hw_addr],recurring=False)
+            elif event.deleted:
+                self.del_port(event.dpid, event.port)
 
     def _handle_openflow_ConnectionUp (self, event):
         self.del_switch(event.dpid, set_timer = False)
     
-        ports = [(p.port_no, p.hw_addr) for p in event.ofp.ports]
+        #ports = [(p.port_no, p.hw_addr) for p in event.ofp.ports]
     
-        for port_num, port_addr in ports:
-            self.add_port(event.dpid, port_num, port_addr, set_timer = False)
+        #for port_num, port_addr in ports:
+        #    self.add_port(event.dpid, port_num, port_addr, set_timer = False)
     
         self._set_timer()
 
@@ -123,6 +147,7 @@ class LLDPSender (object):
         self.del_port(dpid, port_num, set_timer = False)
         self._next_cycle.append(LLDPSender.SendItem(dpid, port_num,
               self.create_discovery_packet(dpid, port_num, port_addr)))
+        
         if set_timer: self._set_timer()
 
     def _set_timer (self):
@@ -139,9 +164,7 @@ class LLDPSender (object):
             interval = 1.0 / self._sends_per_sec
             chunk = float(num_packets) / self._send_cycle_time / self._sends_per_sec
             self._send_chunk_size = chunk
-    
-        self._timer = Timer(interval,
-                            self._timer_handler, recurring=True)
+        self._timer = Timer(interval,self._timer_handler, recurring=True)
 
     def _timer_handler (self):
         """
@@ -154,7 +177,6 @@ class LLDPSender (object):
         num = int(self._send_chunk_size)
         fpart = self._send_chunk_size - num
         if random() < fpart: num += 1
-    
         for _ in range(num):
             if len(self._this_cycle) == 0:
                 self._this_cycle = self._next_cycle
@@ -192,7 +214,7 @@ class LLDPSender (object):
         eth.dst = pkt.ETHERNET.NDP_MULTICAST
         eth.payload = discovery_packet
     
-        po = of.ofp_packet_out(action = of.ofp_action_output(port=port_num))
+        po = of.ofp_packet_out(action = of.ofp_action_output(port_id=port_num))
         po.data = eth.pack()
         return po.pack()
 
@@ -289,22 +311,43 @@ class Discovery (EventMixin):
                 return False
         else:
             con = con_or_dpid
-    
-        match = of.ofp_match(dl_type = pkt.ethernet.LLDP_TYPE,
-                              dl_dst = pkt.ETHERNET.NDP_MULTICAST)
-        msg = of.ofp_flow_mod()
-        msg.priority = priority
-        msg.match = match
-        msg.actions.append(of.ofp_action_output(port = of.OFPP_CONTROLLER))
-        con.send(msg)
+        
+        action_list=[]
+        ofinstructions=[]
+        matchx_list=[]
+        
+        core.PofManager.add_flow_table(con.dpid, 'FirstEntryTable', of.OF_MM_TABLE, 32, [core.PofManager.get_field("DMAC")[0],core.PofManager.get_field("Eth_Type")[0]])
+        table_id = core.PofManager.get_flow_table_id(con.dpid, 'FirstEntryTable')
+        
+        dmac=pkt.ETHERNET.NDP_MULTICAST
+        dmac=str(dmac)
+        Dmac=''
+        for s in dmac:
+            if s != ':':
+                Dmac=Dmac+s
+        match = core.PofManager.get_field("DMAC")[0]
+        temp_matchx = core.PofManager.new_matchx(match, Dmac, 'FFFFFFFFFFFF')
+        matchx_list.append(temp_matchx)
+        Eth_type=hex(pkt.ethernet.LLDP_TYPE)
+        Eth_type=str(Eth_type)
+        Eth_type=Eth_type[2:]
+        match = core.PofManager.get_field("Eth_Type")[0]
+        temp_matchx = core.PofManager.new_matchx(match, Eth_type, 'FFFF')
+        matchx_list.append(temp_matchx)
+        action= core.PofManager.new_action_packetin(0)
+        action_list.append(action)
+        
+        ofinstruction=core.PofManager.new_ins_apply_actions(action_list)
+        ofinstructions.append(ofinstruction)
+        flow_entry_id=core.PofManager.add_flow_entry(con.dpid,table_id,matchx_list,ofinstructions,1,0)        
         return True
-    """
+    
     def _handle_openflow_ConnectionUp (self, event):
         if self._install_flow:
             # Make sure we get appropriate traffic
             log.debug("Installing flow for %s", dpid_to_str(event.dpid))
             self.install_flow(event.connection)
-    """
+    
     def _handle_openflow_ConnectionDown (self, event):
         # Delete all links on this switch
         self._delete_links([link for link in self.adjacency
@@ -331,9 +374,9 @@ class Discovery (EventMixin):
         """
     
         packet = event.parsed
-    
         if (packet.effective_ethertype != pkt.ethernet.LLDP_TYPE
             or packet.dst != pkt.ETHERNET.NDP_MULTICAST):
+            #print "LLDP packet in"
             if not self._eat_early_packets: return
             if not event.connection.connect_time: return
             enable_time = time.time() - self.send_cycle_time - 1
@@ -341,13 +384,13 @@ class Discovery (EventMixin):
                 return EventHalt
             return
     
-        if self._explicit_drop:
-            if event.ofp.buffer_id is not None:
-                log.debug("Dropping LLDP packet %i", event.ofp.buffer_id)
-                msg = of.ofp_packet_out()
-                msg.buffer_id = event.ofp.buffer_id
-                msg.in_port = event.port
-                event.connection.send(msg)
+# '''        if self._explicit_drop:
+#             if event.ofp.buffer_id is not None:
+#                 log.debug("Dropping LLDP packet %i", event.ofp.buffer_id)
+#                 msg = of.ofp_packet_out()
+#                 msg.buffer_id = event.ofp.buffer_id
+#                 msg.in_port = event.port
+#                 event.connection.send(msg)'''
     
         lldph = packet.find(pkt.lldp)
         if lldph is None or not lldph.parsed:
@@ -472,6 +515,7 @@ class Discovery (EventMixin):
 
 def launch (no_flow = False, explicit_drop = True, link_timeout = None,
             eat_early_packets = False):
+    add_protocol()
     explicit_drop = str_to_bool(explicit_drop)   #default: True
     eat_early_packets = str_to_bool(eat_early_packets)  #default: False
     install_flow = not str_to_bool(no_flow)    #default: True
