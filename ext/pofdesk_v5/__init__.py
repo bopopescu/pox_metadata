@@ -151,119 +151,119 @@ def OnlyStr(s,oth=''):
             s = s.replace(c,'');
     return s;  
     
+# class topohandler(StaticContentHandler):
+#     """
+#     topology page handler
+#     """
+#     def do_GET (self): 
+#         Switch_list=[]
+#         for switch in core.PofManager.switches.keys():
+#             Switch_list.append(dpidToStr(switch))
+#         global links
+#         if self.path.startswith('/static/'):
+#             SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self) #load static source
+#         else:
+#                     x=("111","42","126","184","412","291","681","418","540","669","675","876","896","766")
+#                     y=("45","202","351","193","379","274","392","234","209","191","43","46","227","306")    
+#                     i=0
+#                     jsonStr=""
+#                     for switch in Switch_list:
+#                         #m_dpid= str(dpid)
+#                         m=x[i]
+#                         n=y[i]
+#                         if i==0:
+#                             jsonStr+='{"devices":[{"id":"'+switch+'","name":"switch ","src":"static/img/Router_Icon_128x128.png","x":'+m+',"y":'+n+',"width":80,"height":50}'
+#                             i+=1
+#                         else:
+#                             jsonStr+=',{"id":"'+switch+'","name":"switch ","src":"static/img/Router_Icon_128x128.png","x":'+m+',"y":'+n+',"width":80,"height":50}'
+#                             i+=1
+#                     jsonStr+=']'
+#                     i=0
+#                     if links:
+#                         for link in links:
+#                             if i == 0:
+#                                 jsonStr+=',"lines":[{"srcDeviceId":"'+link[0]+'","dstDeviceId":"'+link[1]+'","stroke":"black","strokeWidth":3}'
+#                                 i+=1
+#                             else:
+#                                 jsonStr+=',{"srcDeviceId":"'+link[0]+'","dstDeviceId":"'+link[1]+'","stroke":"black","strokeWidth":3}'
+#                                 i+=1
+#                         jsonStr+=']}'
+#                     else:
+#                         jsonStr+='}'
+#                     path=path_prase('template')
+#                     render = template.render(path)
+#                     s=render.topo(jsonStr)
+#                     s=str(s)
+#                     s=s.replace('&quot;', '"')#translate &quot into "
+#                     self.send_response(200)
+#                     self.send_header('Content-type','text/html')
+#                     self.end_headers()
+#                     self.wfile.write(s)
+#     def do_POST (self):
+#         #print post_content
+#         self.form = cgi.FieldStorage(
+#         fp=self.rfile,
+#         headers=self.headers,
+#         environ={'REQUEST_METHOD':'POST',
+#             'CONTENT_TYPE':self.headers['Content-Type'],
+#             })
+
 class topohandler(StaticContentHandler):
     """
     topology page handler
     """
     def do_GET (self): 
-        Switch_list=[]
-        for switch in core.PofManager.switches.keys():
-            Switch_list.append(dpidToStr(switch))
+          
         global links
+        print "it is topo get"
+        ovs_switches=[]
+        for switch in core.PofManager.switches.keys():
+            ovs_switches.append(dpidToStr(switch))
         if self.path.startswith('/static/'):
             SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self) #load static source
-        else:
-                    x=("111","42","126","184","412","291","681","418","540","669","675","876","896","766")
-                    y=("45","202","351","193","379","274","392","234","209","191","43","46","227","306")    
-                    i=0
-                    jsonStr=""
-                    for switch in Switch_list:
-                        #m_dpid= str(dpid)
-                        m=x[i]
-                        n=y[i]
-                        if i==0:
-                            jsonStr+='{"devices":[{"id":"'+switch+'","name":"switch ","src":"static/img/Router_Icon_128x128.png","x":'+m+',"y":'+n+',"width":80,"height":50}'
-                            i+=1
-                        else:
-                            jsonStr+=',{"id":"'+switch+'","name":"switch ","src":"static/img/Router_Icon_128x128.png","x":'+m+',"y":'+n+',"width":80,"height":50}'
-                            i+=1
-                    jsonStr+=']'
-                    i=0
-                    if links:
-                        for link in links:
-                            if i == 0:
-                                jsonStr+=',"lines":[{"srcDeviceId":"'+link[0]+'","dstDeviceId":"'+link[1]+'","stroke":"black","strokeWidth":3}'
-                                i+=1
-                            else:
-                                jsonStr+=',{"srcDeviceId":"'+link[0]+'","dstDeviceId":"'+link[1]+'","stroke":"black","strokeWidth":3}'
-                                i+=1
-                        jsonStr+=']}'
+        else:   
+            i=0
+            jsonStr=""
+            for switch in ovs_switches:
+                if i==0:
+                    jsonStr+='{"device":[{"id":"'+switch+'"}'
+                    i+=1
+                else:
+                    jsonStr+=',{"id":"'+switch+'"}'
+                    i+=1
+            jsonStr+=']'
+            i=0
+            if links:
+                for link in links:
+                    if i == 0:
+                        jsonStr+=',"links":[{"source":"'+link[0]+'","target":"'+link[1]+'"}'
+                        i+=1
                     else:
-                        jsonStr+='}'
-                    path=path_prase('template')
-                    render = template.render(path)
-                    s=render.topo(jsonStr)
-                    s=str(s)
-                    s=s.replace('&quot;', '"')#translate &quot into "
-                    self.send_response(200)
-                    self.send_header('Content-type','text/html')
-                    self.end_headers()
-                    self.wfile.write(s)
+                        jsonStr+=',{"source":"'+link[0]+'","target":"'+link[1]+'"}'
+                        i+=1
+                jsonStr+=']}'
+            else:
+                jsonStr+='}'   
+            path=path_prase('template')
+            render = template.render(path)
+            s=render.topology(jsonStr)
+              
+            s=str(s)
+            s=s.replace('&quot;', '"')#translate &quot into "
+            self.send_response(200)
+            self.send_header('Content-type','text/html')
+            self.end_headers()
+            self.wfile.write(s)
+                    
     def do_POST (self):
         #print post_content
-        self.form = cgi.FieldStorage(
-        fp=self.rfile,
-        headers=self.headers,
-        environ={'REQUEST_METHOD':'POST',
-            'CONTENT_TYPE':self.headers['Content-Type'],
-            })
-
-# class topohandler(StaticContentHandler):
-#   """
-#   topology page handler
-#   """
-#   def do_GET (self): 
-#          
-#         global links
-#         print "it is topo get"
-#         ovs_switches=[]
-#         for switch in core.PofManager.switches.keys():
-#             ovs_switches.append(dpidToStr(switch))
-#         if self.path.startswith('/static/'):
-#             SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self) #load static source
-#         else:   
-#             i=0
-#             jsonStr=""
-#             for switch in ovs_switches:
-#                 if i==0:
-#                     jsonStr+='{"device":[{"id":"'+switch+'"}'
-#                     i+=1
-#                 else:
-#                     jsonStr+=',{"id":"'+switch+'"}'
-#                     i+=1
-#             jsonStr+=']'
-#             i=0
-#             if links:
-#                 for link in links:
-#                     if i == 0:
-#                         jsonStr+=',"links":[{"source":"'+link[0]+'","target":"'+link[1]+'"}'
-#                         i+=1
-#                     else:
-#                         jsonStr+=',{"source":"'+link[0]+'","target":"'+link[1]+'"}'
-#                         i+=1
-#                 jsonStr+=']}'
-#             else:
-#                 jsonStr+='}'   
-#             path=path_prase('template')
-#             render = template.render(path)
-#             s=render.topology(jsonStr)
-#              
-#             s=str(s)
-#             s=s.replace('&quot;', '"')#translate &quot into "
-#             self.send_response(200)
-#             self.send_header('Content-type','text/html')
-#             self.end_headers()
-#             self.wfile.write(s)
-                    
-#   def do_POST (self):
-#     #print post_content
-#     form = cgi.FieldStorage(
-#       fp=self.rfile,
-#       headers=self.headers,
-#       environ={'REQUEST_METHOD':'POST',
-#           'CONTENT_TYPE':self.headers['Content-Type'],
-#           })
-#     print form.getvalue('post_content')
+        form = cgi.FieldStorage(
+          fp=self.rfile,
+          headers=self.headers,
+          environ={'REQUEST_METHOD':'POST',
+              'CONTENT_TYPE':self.headers['Content-Type'],
+              })
+        print form.getvalue('post_content')
 
 
 class protocolhandler(StaticContentHandler):
