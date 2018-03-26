@@ -358,7 +358,7 @@ class protocolhandler(StaticContentHandler):
                 for field in protocol:
                     field_id = core.PofManager.new_field(field[0], field[2], field[1])
                     match_field_list.append(core.PofManager.get_field(field_id))
-                    field_tuple=(field[0], field[2], field[1],field_id)
+                    field_tuple=(field[0], field[1], field[2],field_id)
                     field_list.append(field_tuple)
                 protocol_id=core.PofManager.add_protocol(form.getvalue('protocolname'),match_field_list)
                 protocols[form.getvalue('protocolname')]=field_list
@@ -1027,6 +1027,7 @@ def GUI_add_flowentry(Table_entry,instructions):
                 print "instruction--apply-action--drop!"
                 reason=of.ofp_drop_reason_rev_map[instruction['Reason']]
                 action=core.PofManager.new_action_drop(reason)
+                action_list.append(action)
 
             if instruction['action_type']=="packet_in":
                 print "instruction--apply-action--packet_in!"
