@@ -49,9 +49,10 @@ def handle_FEATURES_REPLY (con, msg):    #type:6
     con.features = msg
     con.dpid = msg.device_id
     con.port_num_received = 0
-
+    print "before FEATURES"
     if not connecting:
         con.ofnexus._connect(con)
+        
         e = con.ofnexus.raiseEventNoErrors(FeaturesReceived, con, msg)
         if e is None or e.halt != True:
             con.raiseEventNoErrors(FeaturesReceived, con, msg)

@@ -157,3 +157,4 @@ def _handle_ConnectionUp(event):
 def launch():
     core.openflow.addListenerByName("PacketIn", _handle_PacketIn)
     core.openflow.addListenerByName("ConnectionUp", _handle_ConnectionUp)
+    print "helllo    ++++"
