@@ -123,7 +123,7 @@ def _unpad (data, offset, num):
 def _readzs (data, offset, length):
     (offset, d) = _read(data, offset, length)
     d = d.split("\x00", 1)
-    assert True if (len(d) == 1) else (len(d[1].replace("\x00", "")) == 0)
+    #assert True if (len(d) == 1) else (len(d[1].replace("\x00", "")) == 0)
     return (offset, d[0])
 
 def _readether (data, offset):
@@ -1480,7 +1480,7 @@ class ofp_action_output (ofp_action_base):
     according to org.openflow.protocol.action.OFActionSetField
     """
     # _MIN_LENGTH = ofp_action_base._MIN_LENGTH + 8 + ofp_match20._MIN_LENGTH
-    _MIN_LENGTH = 20
+    _MIN_LENGTH = 24
 
     def __init__(self, **kw):
         self.port_id_value_type = 0  # 1 bytes
@@ -1504,7 +1504,7 @@ class ofp_action_output (ofp_action_base):
             self.metadata_length, self.packet_offset)
         if self.port_id_value_type == 0:
             packed += struct.pack("!L", self.port_id)
-            packed += _PAD4
+            packed += _PAD8
         elif self.port_id_value_type == 1 and self.port_id_field != None:
             packed += self.port_id_field.pack()  # ofp_match20.pack
         else:
@@ -1982,8 +1982,9 @@ class ofp_action_drop (ofp_action_base):
     according to org.openflow.protocol.action.OFActionDROP
     """
     # _MIN_LENGTH = ofp_action_base._MIN_LENGTH + 8
-    _MIN_LENGTH = 12
-    
+    # _MIN_LENGTH = 12
+    _MIN_LENGTH = 16 # modified by tsf, expand _pad4 to _pad8
+
     def __init__ (self, **kw):
         self.reason = 0  # 4 bytes
     
@@ -1994,14 +1995,16 @@ class ofp_action_drop (ofp_action_base):
         packed = b""
         packed += ofp_action_base.pack(self)
         packed += struct.pack("!L", self.reason)
-        packed += _PAD4
+        # packed += _PAD4
+        packed += _PAD8 # modified by tsf
         return packed
 
     def unpack (self, raw, offset=0):
         _offset = offset
         offset, length = self._unpack_header(raw, offset)
         offset, self.reason = _unpack("!L", raw, offset)
-        offset = _skip(raw, offset, 4)
+        # offset = _skip(raw, offset, 4)
+        offset = _skip(raw, offset, 8) # modified by tsf
         assert offset - _offset == len(self)
         return offset, length
     
@@ -3214,6 +3217,8 @@ class ofp_features_reply (ofp_header):
         offset,self.experimenter_name = _readzs(raw, offset, OFP_NAME_MAX_LENGTH)
         offset,self.device_forward_engine_name = _readzs(raw, offset, OFP_NAME_MAX_LENGTH)
         offset,self.device_lookup_engine_name = _readzs(raw, offset, OFP_NAME_MAX_LENGTH)
+        sqytest = "featuresreply: %d ,%d ,%d ,%d ,%d ,%s " %(self.device_id, self.slot_id, self.port_num, self.table_num,self.capabilities,self.device_forward_engine_name)
+        print sqytest
         assert length == len(self)
         return offset,length
 
@@ -3267,6 +3272,8 @@ class ofp_get_config_request (ofp_header):
 
     def unpack (self, raw, offset=0):
         offset, length = self._unpack_header(raw, offset)
+        strHello = "ofp_get_config_request:the length is %d ,the len(self) is %d ,the raw is %s" %(length,len('Hello World'),raw)
+        print strHello
         assert length == len(self)
         return offset, length
 
@@ -3307,9 +3314,13 @@ class ofp_get_config_reply (ofp_header):  # uses ofp_switch_config
         return packed
 
     def unpack (self, raw, offset=0):
+        print raw
         offset,length = self._unpack_header(raw, offset)
         offset,(self.device_id, self.flags, self.miss_send_len) = \
             _unpack("!LHH", raw, offset)
+        strHello = "ofp_get_config_reply:%d, %d, %d " %(self.device_id, self.flags, self.miss_send_len)
+        print strHello
+        
         assert length == len(self)
         return offset,length
 
@@ -3336,10 +3347,11 @@ class ofp_get_config_reply (ofp_header):  # uses ofp_switch_config
 
 @openflow_c_message("OFPT_SET_CONFIG", 9)  # changed by cc
 class ofp_set_config (ofp_header):  # uses ofp_switch_config
-    _MIN_LENGTH = 12
+    _MIN_LENGTH = 16
     
     def __init__ (self, **kw):
         ofp_header.__init__(self)
+        self.device_id = 0     # 4 bytes
         self.flags = 0
         self.miss_send_len = OFP_DEFAULT_MISS_SEND_LEN  # 128
     
@@ -3350,18 +3362,18 @@ class ofp_set_config (ofp_header):  # uses ofp_switch_config
     
         packed = b""
         packed += ofp_header.pack(self)
-        packed += struct.pack("!HH", self.flags, self.miss_send_len)
+        packed += struct.pack("!LHH", self.device_id, self.flags, self.miss_send_len)
         return packed
 
     def unpack (self, raw, offset=0):
         offset, length = self._unpack_header(raw, offset)
-        offset, (self.flags, self.miss_send_len) = _unpack("!HH", raw, offset)
+        offset, (self.device_id, self.flags, self.miss_send_len) = _unpack("!LHH", raw, offset)
         assert length == len(self)
         return offset, length
 
     @staticmethod
     def __len__ ():
-        return 12
+        return 16
 
     def __eq__ (self, other):
         if type(self) != type(other): return False
@@ -3578,7 +3590,9 @@ class ofp_port_status (ofp_header):
         offset, (self.reason,) = _unpack("!B", raw, offset)
         offset = _skip(raw, offset, 7)
         self.desc = ofp_phy_port()
-        offset = self.desc.unpack(raw, offset)
+        strHello = "ofp_port_status:%d" %(self.reason )
+        print strHello
+        offset = self.desc.unpack(raw, offset)        
         assert length == len(self)
         return offset, length
 
@@ -3642,6 +3656,8 @@ class ofp_resource_report (ofp_header):
             table_resource = ofp_table_resource()
             offset = table_resource.unpack(raw, offset)
             self.table_resources_map[i] = table_resource
+        strHello = "ofp_resource_report:%d, %d, %d, %d, %d " %(self.resource_type, self.slot_id, self.counter_num, self.meter_num, self.group_num)
+        print strHello
         assert length == len(self)
         return offset, length
     
