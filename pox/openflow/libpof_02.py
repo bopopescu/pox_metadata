@@ -1570,7 +1570,7 @@ class ofp_action_set_field (ofp_action_base):
     modified by cc
     according to org.openflow.protocol.action.OFActionSetField
     """
-    _MIN_LENGTH = ofp_action_base._MIN_LENGTH + ofp_matchx._MIN_LENGTH
+    _MIN_LENGTH = ofp_action_base._MIN_LENGTH + ofp_matchx._MIN_LENGTH + 4
     #_MIN_LENGTH = 44
 
     def __init__ (self, **kw):
@@ -1582,8 +1582,10 @@ class ofp_action_set_field (ofp_action_base):
         assert self._assert()
         packed = b""
         packed += ofp_action_base.pack(self)
+        # packed += _PAD4  # add by tsf, to support ovs
 
         packed += self.field_setting.pack()
+        packed += _PAD4 # add by tsf, to support ovs
         return packed
 
     def unpack (self, raw, offset=0):
