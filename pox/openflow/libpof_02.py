@@ -1677,8 +1677,9 @@ class ofp_action_modify_field (ofp_action_base):
     according to org.openflow.protocol.action.OFActionModifyField
     """
     # _MIN_LENGTH = ofp_action_base._MIN_LENGTH + ofp_match20._MIN_LENGTH + 8
-    _MIN_LENGTH = 20
-    
+    # _MIN_LENGTH = 20
+    _MIN_LENGTH = 16 # modified by tsf
+
     def __init__ (self, **kw):
         self.match_field = ofp_match20()  # ofp_match20
         self.increment = 0  # 4 bytes
@@ -1691,7 +1692,7 @@ class ofp_action_modify_field (ofp_action_base):
         packed += ofp_action_base.pack(self)
         packed += self.match_field.pack()
         packed += struct.pack("!L", self.increment)
-        packed += _PAD4
+        # packed += _PAD4 # modified by tsf
         return packed
 
     def unpack (self, raw, offset=0):
@@ -1701,7 +1702,7 @@ class ofp_action_modify_field (ofp_action_base):
         self.match_field = ofp_match20()
         offset = self.match_field.unpack(raw, offset)  # ofp_matchx.upack
         offset, self.increment = _unpack("!L", raw, offset)
-        offset = _skip(raw, offset, 4)
+        # offset = _skip(raw, offset, 4) # modified by tsf
         assert offset - _offset == len(self)
         return offset, length
     
