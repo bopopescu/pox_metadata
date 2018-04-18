@@ -1733,7 +1733,8 @@ class ofp_action_add_field (ofp_action_base):
     according to org.openflow.protocol.action.OFActionAddField
     """
     # _MIN_LENGTH = ofp_action_base._MIN_LENGTH + 8 + OFP_MAX_FIELD_LENGTH_IN_BYTE
-    _MIN_LENGTH = 28
+    # _MIN_LENGTH = 28
+    _MIN_LENGTH = 32 # modified by tsf
     
     def __init__ (self, **kw):
         self.field_id = 0  # 2 bytes
@@ -1752,13 +1753,15 @@ class ofp_action_add_field (ofp_action_base):
         if len(self.field_value) == 0:
             packed += _PAD * OFP_MAX_FIELD_LENGTH_IN_BYTE
         else:
-            if len(self.field_value) > OFP_MAX_FIELD_LENGTH_IN_BYTE:
+            # if len(self.field_value) > OFP_MAX_FIELD_LENGTH_IN_BYTE:
+            if (len(hex(int(self.field_value)))/2 - 1) > OFP_MAX_FIELD_LENGTH_IN_BYTE:   # modified by tsf
                 _log(error="out of range in field_value")
                 return
             else:
                 #packed += self.field_value    #FIXME:TORAW
                 #packed += _PAD * (OFP_MAX_FIELD_LENGTH_IN_BYTE - len(self.field_value))
                 packed += Hex2Raw(self.field_value, OFP_MAX_FIELD_LENGTH_IN_BYTE).toRaw()
+        packed += _PAD4;  # add by tsf to support ovs
         return packed
 
     def unpack (self, raw, offset=0):
@@ -1767,6 +1770,7 @@ class ofp_action_add_field (ofp_action_base):
         offset, (self.field_id, self.field_position, self.field_length) = \
             _unpack("!HHL", raw, offset)
         offset, self.field_value = _read(raw, offset, OFP_MAX_FIELD_LENGTH_IN_BYTE)
+        offset = _skip(raw, offset, 4) # add by tsf
         assert offset - _offset == len(self)
         return offset, length
     
