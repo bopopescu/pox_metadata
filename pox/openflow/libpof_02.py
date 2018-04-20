@@ -1804,7 +1804,8 @@ class ofp_action_delete_field (ofp_action_base):
     according to org.openflow.protocol.action.OFActionDeleteField
     """
     # _MIN_LENGTH = ofp_action_base._MIN_LENGTH + ofp_match20._MIN_LENGTH + 8
-    _MIN_LENGTH = 20
+    # _MIN_LENGTH = 20  # commented by tsf
+    _MIN_LENGTH = 24    # add by tsf
     
     def __init__ (self, **kw):
         self.tag_position = 0  # 2 bytes
@@ -1827,6 +1828,7 @@ class ofp_action_delete_field (ofp_action_base):
             packed += self.tag_length_field.pack()
         else:
             packed += _PAD * ofp_match20._MIN_LENGTH
+        packed += _PAD4  # add by tsf
         return packed
 
     def unpack (self, raw, offset=0):
@@ -1843,6 +1845,7 @@ class ofp_action_delete_field (ofp_action_base):
         else:
             self.tag_length_value = 0
             offset = _skip(raw, offset, ofp_match20._MIN_LENGTH)
+        offset = _skip(raw, offset, 4)   # add by tsf
         assert offset - _offset == len(self)
         return offset, length
     

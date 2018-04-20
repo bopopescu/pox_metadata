@@ -36,21 +36,31 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ext/pofdesk_v5/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18360">
-              <caret line="1030" column="0" lean-forward="false" selection-start-line="1030" selection-start-column="0" selection-end-line="1030" selection-end-column="0" />
+            <state relative-caret-position="274">
+              <caret line="998" column="49" lean-forward="true" selection-start-line="998" selection-start-column="49" selection-end-line="998" selection-end-column="49" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="libpof_02.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pofmanager.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pox/openflow/pofmanager.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="293">
+              <caret line="645" column="8" lean-forward="false" selection-start-line="645" selection-start-column="8" selection-end-line="645" selection-end-column="8" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="libpof_02.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pox/openflow/libpof_02.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="616">
-              <caret line="1779" column="0" lean-forward="true" selection-start-line="1779" selection-start-column="0" selection-end-line="1779" selection-end-column="0" />
+            <state relative-caret-position="166">
+              <caret line="1829" column="48" lean-forward="false" selection-start-line="1829" selection-start-column="48" selection-end-line="1829" selection-end-column="48" />
               <folding>
                 <element signature="e#128#141#0" expanded="true" />
               </folding>
@@ -71,6 +81,8 @@
       <find>drop</find>
       <find>add_fie</find>
       <find>add_f</find>
+      <find>dele</find>
+      <find>delete_fi</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -91,6 +103,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
+    <option name="x" value="1440" />
+    <option name="y" value="58" />
     <option name="width" value="1440" />
     <option name="height" value="860" />
   </component>
@@ -391,12 +405,12 @@
       <workItem from="1521464620164" duration="1661000" />
       <workItem from="1522028714577" duration="6000" />
       <workItem from="1522028737184" duration="11933000" />
-      <workItem from="1522242410818" duration="12621000" />
+      <workItem from="1522242410818" duration="14654000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="37649000" />
+    <option name="totallyTimeSpent" value="39682000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -408,7 +422,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1440" height="860" extended-state="0" />
+    <frame x="1440" y="58" width="1440" height="860" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30329043" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -418,7 +432,7 @@
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32867134" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18741259" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17762238" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -607,21 +621,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ext/pofdesk_v5/__init__.py">
+    <entry file="file://$PROJECT_DIR$/pox/openflow/libpof_02.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18360">
-          <caret line="1030" column="0" lean-forward="false" selection-start-line="1030" selection-start-column="0" selection-end-line="1030" selection-end-column="0" />
+        <state relative-caret-position="166">
+          <caret line="1829" column="48" lean-forward="false" selection-start-line="1829" selection-start-column="48" selection-end-line="1829" selection-end-column="48" />
+          <folding>
+            <element signature="e#128#141#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pox/openflow/pofmanager.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="293">
+          <caret line="645" column="8" lean-forward="false" selection-start-line="645" selection-start-column="8" selection-end-line="645" selection-end-column="8" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pox/openflow/libpof_02.py">
+    <entry file="file://$PROJECT_DIR$/ext/pofdesk_v5/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="616">
-          <caret line="1779" column="0" lean-forward="true" selection-start-line="1779" selection-start-column="0" selection-end-line="1779" selection-end-column="0" />
-          <folding>
-            <element signature="e#128#141#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="274">
+          <caret line="998" column="49" lean-forward="true" selection-start-line="998" selection-start-column="49" selection-end-line="998" selection-end-column="49" />
+          <folding />
         </state>
       </provider>
     </entry>
