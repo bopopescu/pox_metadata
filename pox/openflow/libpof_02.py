@@ -4057,6 +4057,7 @@ class ofp_flow_mod (ofp_header):
         offset, (self.counter_id, self.cookie, self.cookie_mask, self.table_id,
                 self.table_type, self.idle_timeout, self.hard_timeout,
                 self.priority, self.index) = _unpack("!LQQBBHHHL", raw, offset)
+        offset = _skip(raw, offset, 4)  # tsf: this should to be _PAD4
         self.match_list = []
         self.instruction_list = []
         for _ in xrange(OFP_MAX_MATCH_FIELD_NUM):
@@ -4124,7 +4125,7 @@ class ofp_group_mod (ofp_header):
     def __init__ (self, **kw):
         ofp_header.__init__(self)
         self.command = 0      # 1 byte, ofp_group_mod_command
-        self.group_type = 0   # 1 byte, ofp_group_typy
+        self.group_type = 0   # 1 byte, ofp_group_type
         self.action_num = 0   # 1 byte
         self.group_id = 0     # 4 bytes
         self.counter_id = 0    # 4 bytes
@@ -4153,6 +4154,7 @@ class ofp_group_mod (ofp_header):
             _unpack("!BBB", raw, offset)
         offset = _skip(raw, offset, 1)
         offset, (self.group_id, self.counter_id) = _unpack("!LL", raw, offset)
+        offset = _skip(raw, offset, 4)  # tsf: this should to be _PAD4
 
         actions_len = ofp_action_base._MAX_LENGTH * self.action_num
         offset, self.action_list = _unpack_actions(raw, actions_len, offset)
@@ -4536,8 +4538,8 @@ class ofp_meter_mod(ofp_header):
     def __init__(self, **kw):
         ofp_header.__init__(self)
         self.command = 0  # 1 byte, ofp_meter_mod_command
-        self.slot_id = 0
-        self.rate = 0  # 2 bytes
+        self.slot_id = 0  # 2 bytes
+        self.rate = 0  # 4 bytes
         self.meter_id = 0  # 4 bytes
 
         initHelper(self, kw)
@@ -4558,7 +4560,8 @@ class ofp_meter_mod(ofp_header):
         offset, length = self._unpack_header(raw, offset)
         offset, self.command = _unpack("!B", self.command)
         offset = _skip(raw, offset, 1)
-        offset, (self.rate, self.meter_id) = _unpack("!HLL", self.slot_id, self.meter_id, self.rate)
+        # offset, (self.rate, self.meter_id) = _unpack("!HLL", self.slot_id, self.meter_id, self.rate)
+        offset, (self.slot_id, self.meter_id, self.rate) = _unpack("!HLL", raw, offset) # fixed by tsf
         offset = _skip(raw, offset, 4)
         assert length == len(self)
         return offset, length
