@@ -2517,7 +2517,8 @@ class ofp_instruction_write_metadata_from_packet(ofp_instruction_base):
     edit by CC
     according to org.openflow.protocol.instruction.OFInstructionWriteMetadataFromPacket
     """
-    _MIN_LENGTH = ofp_instruction_base._MIN_LENGTH + 8  #16
+    # _MIN_LENGTH = ofp_instruction_base._MIN_LENGTH + 8  #16
+    _MIN_LENGTH = 16   # pjq
 
     def __init__(self, **kw):
         self.metadata_offset = 0  # 2 bytes
@@ -2531,7 +2532,8 @@ class ofp_instruction_write_metadata_from_packet(ofp_instruction_base):
         packed = b""
         packed += ofp_instruction_base.pack(self)
         packed += struct.pack("!HHH", self.metadata_offset, self.packet_offset, self.write_length)
-        packed += _PAD2
+        #packed += _PAD2
+        packed += _PAD6   # pjq
         return packed
     
     def unpack(self, raw, offset=0):
@@ -2539,7 +2541,8 @@ class ofp_instruction_write_metadata_from_packet(ofp_instruction_base):
         offset, length = self._unpack_header(raw, offset)
         
         offset, (self.metadata_offset, self.packet_offset, self.write_length) = _unpack('!HHH', raw, offset)
-        offset = _skip(raw, offset, 2)
+        # offset = _skip(raw, offset, 2)
+        offset = _skip(raw, offset, 6)
         
         assert offset - _offset == len(self)
         return offset, length
