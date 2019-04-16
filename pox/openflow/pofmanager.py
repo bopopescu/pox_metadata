@@ -320,6 +320,7 @@ class PofManager(EventMixin):
         flow_entry_id = self.database.add_flow_entry(switch_id, global_table_id, match_field_num, matchx_list, instruction_num, instruction_list, priority, counter_enable)
         flow_entry = self.get_flow_entry(switch_id, global_table_id, flow_entry_id)
         self.write_of(switch_id, flow_entry)
+        print "in pofmanager.py  add_flow_entry     line323"
         log.info('ADD <entry[' + str(flow_entry.table_type) + '][' + str(flow_entry.table_id) + '][' + str(flow_entry.index) + ']>')
         return flow_entry_id
     
@@ -575,6 +576,7 @@ class PofManager(EventMixin):
         return instruction
     
     def new_ins_write_metadata_from_packet(self, metadata_offset, write_length, packet_offset = 0):  # 7
+        print "log in pofmanager.py def new_ins_write_metadata_from_packet   line578"
         instruction = of.ofp_instruction_write_metadata_from_packet()
         instruction.metadata_offset = metadata_offset
         instruction.write_length = write_length

@@ -817,8 +817,12 @@ class Connection (EventMixin):
             #          of.ofp_type_map[ofp_type])
     
             if buf_len - offset < msg_length: break
+
+            #print "in pof_01.py before unpackers     line821"
     
             new_offset,msg = unpackers[ofp_type](self.buf, offset)
+
+            #print "in pof_01.py after unpackers     line825"
             assert new_offset - offset == msg_length
             offset = new_offset
             
@@ -984,10 +988,12 @@ class POF_01_Task (Task):
                             #print str(newcon) + " connected"
                         else:
                             con.idle_time = timestamp
+                            #print  "in pof_01.py before con.read   line987"
                             if con.read() is False:    # do the read function of class 'Connection'
                                 print('con.read() is False')
                                 con.close()
                                 sockets.remove(con)
+                            #print  "in pof_01.py after con.read   line992"
             except exceptions.KeyboardInterrupt:
                 break
             except:
@@ -998,6 +1004,7 @@ class POF_01_Task (Task):
                         doTraceback = False
         
                 if doTraceback:
+                    print  "in pof_01.py before connection error   line 1007"
                     log.exception("Exception reading connection " + str(con))
         
                 if con is listener:

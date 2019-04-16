@@ -693,7 +693,11 @@ class ofp_base (object):
         Returns newoffset,object
         """
         o = cls()
+
+        #print  "in libpof_02.py before unpack    line697"
+
         r, length = o.unpack(raw, offset)  # cc: r -> new offset
+        #print  "in libpof_02.py after unpack    line697"
         assert (r - offset) == length, o
         return (r, o)
     
@@ -2517,7 +2521,7 @@ class ofp_instruction_write_metadata_from_packet(ofp_instruction_base):
     edit by CC
     according to org.openflow.protocol.instruction.OFInstructionWriteMetadataFromPacket
     """
-    _MIN_LENGTH = ofp_instruction_base._MIN_LENGTH + 8  #16
+    _MIN_LENGTH = ofp_instruction_base._MIN_LENGTH + 16  #16
    # _MIN_LENGTH = 16   # pjq
 
     def __init__(self, **kw):
@@ -2531,6 +2535,8 @@ class ofp_instruction_write_metadata_from_packet(ofp_instruction_base):
         assert self._assert()
         packed = b""
         packed += ofp_instruction_base.pack(self)
+        packed += struct.pack("!HH", 42, 16)
+        packed += _PAD4
         packed += struct.pack("!HHH", self.metadata_offset, self.packet_offset, self.write_length)
         packed += _PAD2
        # packed += _PAD6   # pjq
@@ -2539,10 +2545,11 @@ class ofp_instruction_write_metadata_from_packet(ofp_instruction_base):
     def unpack(self, raw, offset=0):
         _offset = offset
         offset, length = self._unpack_header(raw, offset)
-        
+
+        offset =_skip(raw, offset, 8)
         offset, (self.metadata_offset, self.packet_offset, self.write_length) = _unpack('!HHH', raw, offset)
-        # offset = _skip(raw, offset, 2)
-        offset = _skip(raw, offset, 6)
+        offset = _skip(raw, offset, 2)
+        #offset = _skip(raw, offset, 6)
         
         assert offset - _offset == len(self)
         return offset, length
@@ -2560,6 +2567,7 @@ class ofp_instruction_write_metadata_from_packet(ofp_instruction_base):
         return True
 
     def show(self, prefix=''):
+        print "log: in libpof_02.py show write_metadata_from_packet    line256"
         outstr = ''
         outstr += prefix + 'instruction header: \n'
         outstr += ofp_instruction_base.show(self, prefix + '  ')
@@ -2980,7 +2988,11 @@ class ofp_error (ofp_header):
         return packed
 
     def unpack (self, raw, offset=0):
+
+        #print "in libpof_02.py before unpack error    line 2989"
         offset, length = self._unpack_header(raw, offset)
+
+        #print "in libpof_02.py after unpack error    line 2989"
         
         offset, (self.type, self.code, self.device_id, self.slot_id) = _unpack("!HHLH", raw, offset)
         offset = _skip(raw, offset, 6)

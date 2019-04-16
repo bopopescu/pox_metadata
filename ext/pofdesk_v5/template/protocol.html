@@ -335,7 +335,7 @@ $if Table_entry:
 	<div id='showtableentry'>
 	<input type="hidden" id="submitinstruction" name="submitinstruction">
 	</div>
-	<input type="submit" id="addtableentrysubmit" name="addtableentrysubmit" value="add table entry" onmousemove="saveentry();">
+	<input type="submit" id="addtableentrysubmit" name="addtableentrysubmit" value="add table entry pjq" onmousemove="saveentry();">
 	</form>
 	</div>
 <script>
@@ -397,15 +397,15 @@ if(document.getElementById("intsruction").value=="WRITE_METADATA")
 	}
 if(document.getElementById("intsruction").value=="WRITE_METADATA_FROM_FLOW")
 	{
-	document.getElementById("addtableentry2").style.height='auto';
-	document.getElementById("addtableentry2").style.display='';
-	document.getElementById("addtableentry3").style.height='0';
-	document.getElementById("addtableentry3").style.display='none';
-	var s="<table><td style='font-weight:bold;'>WRITE_METADATA</td><td>Metadata:<select id='exited_metadata' style='height:25px;text-align:top;width:170px'><option valve='exited_metadata'> </operation>";
-	$for field in Metadata:
-		s+="<option valve='$field[0]'>$field[0];$field[1]</operation>"
-	s+="</select></td><td>Packet Offset(bit):<input type='number' id='Packet_Offset'min='0' height=100px style='height:25px;text-align:top;width:70px'></td><td><img src='static/img/plus.png' style='height:20px;width:20px' onclick='addWRITEMETADATAFROMFLOW();'/"+"></td></table>";
-	document.getElementById("addtableentry2").innerHTML=s;
+		document.getElementById("addtableentry2").style.height='auto';
+		document.getElementById("addtableentry2").style.display='';
+		document.getElementById("addtableentry3").style.height='0';
+		document.getElementById("addtableentry3").style.display='none';
+		var s="<table><td style='font-weight:bold;'>WRITE_METADATA_FROM_PACKET";
+		s+="</select></td><td>Metadata Offset(bit):<input type='number' id='Metadata_Offset'min='0' height=100px style='height:25px;text-align:top;width:70px'></td><td>";
+		s+="</select></td><td>Metadata Length(bit):<input type='number' id='Metadata_Length'min='0' height=100px style='height:25px;text-align:top;width:70px'></td><td>";
+		s+="</select></td><td>Packet Offset(bit):<input type='number' id='Packet_Offset'min='0' height=100px style='height:25px;text-align:top;width:70px'></td><td><img src='static/img/plus.png' style='height:20px;width:20px' onclick='addWRITEMETADATAFROMFLOW();'/"+"></td></table>";
+		document.getElementById("addtableentry2").innerHTML=s;
 	}
 if(document.getElementById("intsruction").value=="APPLY_ACTION")
 	{
@@ -549,11 +549,13 @@ instructionid+=1;
 function addWRITEMETADATAFROMFLOW(){
 mmm=4;
 var m={};
-m['metadata']=document.getElementById("exited_metadata").value;
+m['Metadata_Offset']=document.getElementById("Metadata_Offset").value;
+m['Metadata_Length']=document.getElementById("Metadata_Length").value;
 m['Packet_Offset']=document.getElementById("Packet_Offset").value;
 m['action']="write_metadata_from_flow";
 instructions.push(m);
-var mm="<table border='2' id='instructionid"+instructionid+"'><td style='width:200px'><span style='font-weight:bold;'>WRITE_METADATA_FROM_FLOW:</span></td><td style='width:950px'><span style='font-weight:bold;'>Metadata:</span>"+m['metadata']+"<span style='font-weight:bold;'>;Packet_Offset(bit):</span>"+m['Packet_Offset']+"</td><td><img src='static/img/delete.jpg'style='height:20px;width:20px' onclick='deleter("+instructionid+");'/"+"></td></table>";
+//var mm="<table border='2' id='instructionid"+instructionid+"'><td style='width:200px'><span style='font-weight:bold;'>WRITE_METADATA_FROM_FLOW:</span></td><td style='width:950px'><span style='font-weight:bold;'>Metadata_Offset(bit):</span>"+m['Metadata_Offset']+"</td><td>Metadata_Length(bit):</span>"+m['Metadata_Length']+"</td><td>Packet_Offset(bit):</span>"+m['Packet_Offset']+"</td><td><img src='static/img/delete.jpg' style='height:20px;width:20px' onclick='deleter("+instructionid+");'/"+"></td></table>";
+var mm="<table border='2' id='instructionid"+instructionid+"'><td style='width:200px'><span style='font-weight:bold;'>GOTO_DIRECT_TABLE:</span></td><td style='width:950px'><span style='font-weight:bold;'>Metadata_Offset(bit):</span>"+m['Metadata_Offset']+"<span style='font-weight:bold;'>;Metadata_length(bit):</span>"+m['Metadata_Length']+"<span style='font-weight:bold;'>;Packet Offset:</span>"+m['Packet_Offset']+"</td><td><img src='static/img/delete.jpg' style='height:20px;width:20px' onclick='deleter("+instructionid+");'/"+"></td></table>";
 document.getElementById("showtableentry").innerHTML+=mm;
 document.getElementById("addtableentry2").style.height='0';
 document.getElementById("addtableentry2").style.display='none';

@@ -1087,12 +1087,15 @@ def GUI_add_flowentry(Table_entry,instructions):
                 value=instruction["value"]
                 ofinstruction=core.PofManager.new_ins_write_metadata(metadata_field.offset, metadata_field.length, value)
             if instruction['action']=="write_metadata_from_flow":
+                print  "log: in __init__.py    line1090"
                 print "instruction--write_metadata_from_flow"
-                metadata_name=string.split(instruction["metadata"],';')[0]
-                metadata_field=core.PofManager.get_metadata_field(metadata_name)
+                # metadata_name=string.split(instruction["metadata"],';')[0]
+                # metadata_field=core.PofManager.get_metadata_field(metadata_name)
                 packet_offset=int(instruction["Packet_Offset"])
-                # ofinstruction=core.PofManager.new_ins_write_metadata_from_packet(metadata_field.offset, metadata_field.length, packet_offset)
-                ofinstruction=core.PofManager.new_ins_write_metadata_from_packet(32, 32, packet_offset)
+                metadata_offset=int(instruction['Metadata_Offset'])
+                metadata_length=int(instruction['Metadata_Length'])
+                ofinstruction=core.PofManager.new_ins_write_metadata_from_packet(metadata_offset, metadata_length, packet_offset)
+                #ofinstruction=core.PofManager.new_ins_write_metadata_from_packet(32, 32, packet_offset)
 
             if instruction['action']=="calculate_field":
                 print "instruction--calculate_field"
